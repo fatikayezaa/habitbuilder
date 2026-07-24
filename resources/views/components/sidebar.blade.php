@@ -24,23 +24,24 @@
             🏠 Dashboard
         </x-nav-link>
 
-        <x-nav-link href="#" :active="request()->routeIs('habits.*')">
+        <x-nav-link href="{{ route('habits.index') }}" :active="request()->routeIs('habits.*')">
             ✅ Habits
         </x-nav-link>
 
-        <x-nav-link href="#" :active="request()->routeIs('categories.*')">
+        <x-nav-link href="{{ route('categories.index') }}" :active="request()->routeIs('categories.*')">
             📂 Categories
         </x-nav-link>
 
-        <x-nav-link href="#" :active="request()->routeIs('analytics.*')">
+        <x-nav-link href="{{ route('analytics.index') }}" :active="request()->routeIs('analytics.*')">
             📊 Analytics
         </x-nav-link>
     </nav>
 
     <!-- Bottom Actions -->
     <div class="px-4 py-6 border-t border-slate-200 dark:border-slate-800">
-        <x-nav-link href="#">👤 Profile</x-nav-link>
-        <x-nav-link href="#">⚙ Settings</x-nav-link>
+        <x-nav-link href="{{ route('profile.edit') }}" :active="request()->routeIs('profile.*')">
+            👤 Profile
+        </x-nav-link>
         
         <form method="POST" action="{{ route('logout') }}">
             @csrf

@@ -8,30 +8,27 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Habit extends Model
 {
-    protected $fillable = [
-        'user_id', 'category_id', 'title', 'description', 
-        'target', 'target_unit', 'frequency', 'is_active'
-    ];
+    protected $guarded = [];
 
-    // Habit dimiliki oleh satu User
+    // Relasi User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // Habit dimiliki oleh satu Category
+    // Relasi Category
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
-    // Habit memiliki banyak Schedule (untuk frekuensi custom)
+    // Relasi Schedules
     public function schedules(): HasMany
     {
         return $this->hasMany(HabitSchedule::class);
     }
 
-    // Habit memiliki banyak Log (riwayat check-in)
+    // Relasi Logs
     public function logs(): HasMany
     {
         return $this->hasMany(HabitLog::class);

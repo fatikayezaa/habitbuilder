@@ -4,45 +4,49 @@ namespace App\Http\Controllers;
 
 use App\Models\Habit;
 use App\Models\Category;
-use App\Models\HabitLog; 
-use Carbon\Carbon;       
+use App\Models\HabitLog;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class HabitController extends Controller
 {
+    // Index Habit
     public function index()
     {
         $habits = Habit::with('category')->where('user_id', Auth::id())->get();
         $categories = Category::where('user_id', Auth::id())->get();
-        
+
         return view('habits.index', compact('habits', 'categories'));
     }
 
+    // Simpan Habit Baru
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:150',
+            'title'       => 'required|string|max:150',
             'category_id' => 'required|exists:categories,id',
-            'frequency' => 'required|in:daily,weekdays,weekend,weekly,custom',
-            'target' => 'required|string|max:100',
+            'frequency'   => 'required|in:daily,weekdays,weekend,weekly,one_time',
+            'target'      => 'required|string|max:100',
             'target_unit' => 'required|string|max:50',
+            'description' => 'nullable|string',
         ]);
 
         Habit::create([
-            'user_id' => Auth::id(),
+            'user_id'     => Auth::id(),
             'category_id' => $request->category_id,
-            'title' => $request->title,
+            'title'       => $request->title,
             'description' => $request->description,
-            'target' => $request->target,
+            'target'      => $request->target,
             'target_unit' => $request->target_unit,
-            'frequency' => $request->frequency,
-            'is_active' => true,
+            'frequency'   => $request->frequency,
+            'is_active'   => true,
         ]);
 
         return redirect()->back();
     }
 
+    // Hapus Habit
     public function destroy(Habit $habit)
     {
         if ($habit->user_id === Auth::id()) {
@@ -51,21 +55,19 @@ class HabitController extends Controller
         return redirect()->back();
     }
 
-    // === EDIT ===
-
+    // Form Edit Habit
     public function edit(Habit $habit)
     {
-        // Pastikan hanya pemilik yang bisa melihat halaman edit
         if ($habit->user_id !== Auth::id()) {
             abort(403);
         }
-        
-        // ambil data kategori
+
         $categories = Category::where('user_id', Auth::id())->get();
-        
+
         return view('habits.edit', compact('habit', 'categories'));
     }
 
+    // Update Habit
     public function update(Request $request, Habit $habit)
     {
         if ($habit->user_id !== Auth::id()) {
@@ -73,55 +75,51 @@ class HabitController extends Controller
         }
 
         $request->validate([
-            'title' => 'required|string|max:150',
+            'title'       => 'required|string|max:150',
             'category_id' => 'required|exists:categories,id',
-            'frequency' => 'required|in:daily,weekdays,weekend,weekly,custom',
-            'target' => 'required|string|max:100',
+            'frequency'   => 'required|in:daily,weekdays,weekend,weekly,one_time',
+            'target'      => 'required|string|max:100',
             'target_unit' => 'required|string|max:50',
+            'description' => 'nullable|string',
         ]);
 
         $habit->update([
             'category_id' => $request->category_id,
-            'title' => $request->title,
+            'title'       => $request->title,
             'description' => $request->description,
-            'target' => $request->target,
+            'target'      => $request->target,
             'target_unit' => $request->target_unit,
-            'frequency' => $request->frequency,
+            'frequency'   => $request->frequency,
         ]);
 
         return redirect('/habits');
     }
 
-    // === CHECK-IN LOGIC ===
+    // Proses Check-in Habit
     public function checkIn(Request $request, Habit $habit)
     {
-        // 🔒 KEAMANAN: Pastikan hanya pemilik habit yang bisa melakukan check-in
         if ($habit->user_id !== Auth::id()) {
             abort(403);
         }
 
-        // 1. Ambil tanggal hari ini (Waktu Jakarta)
         $today = Carbon::now()->timezone('Asia/Jakarta')->toDateString();
 
-        // 2. Cek apakah habit ini sudah di-check-in hari ini
         $existingLog = HabitLog::where('habit_id', $habit->id)
             ->where('log_date', $today)
             ->first();
 
-        // 3. Jika sudah ada, kita hapus (Toggle uncheck)
         if ($existingLog) {
             $existingLog->delete();
             return back()->with('success', 'Check-in dibatalkan.');
         }
 
-        // 4. Jika belum ada, kita buat log baru dengan status completed
         HabitLog::create([
-            'habit_id' => $habit->id,
-            'log_date' => $today,
-            'status' => 'completed',
+            'habit_id'       => $habit->id,
+            'log_date'       => $today,
+            'status'         => 'completed',
             'completed_time' => Carbon::now()->timezone('Asia/Jakarta')->toTimeString(),
-            'notes' => 'Selesai dari Dashboard',
-            'mood' => 5, 
+            'notes'          => 'Selesai dari Dashboard',
+            'mood'           => 5,
         ]);
 
         return back()->with('success', 'Mantap! Habit berhasil diselesaikan hari ini. 🎉');
