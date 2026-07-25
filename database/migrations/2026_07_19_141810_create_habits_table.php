@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('target', 100);
             $table->string('target_unit', 50);
-            $table->enum('frequency', ['daily', 'weekdays', 'weekend', 'weekly', 'custom']);
+            $table->enum('frequency', ['daily', 'weekdays', 'weekend', 'weekly', 'one_time', 'custom']);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
