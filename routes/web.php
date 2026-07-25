@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HabitController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 // --- Public Routes ---
@@ -24,6 +25,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Settings Management
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::patch('/settings', [SettingController::class, 'update'])->name('settings.update');
 
     // Category Management
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');

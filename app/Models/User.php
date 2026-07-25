@@ -26,6 +26,12 @@ class User extends Authenticatable
         return $this->hasMany(Habit::class);
     }
 
+    // Relasi ke Setting
+    public function setting()
+    {
+        return $this->hasOne(Setting::class);
+    }
+
     // Relasi Many-to-Many ke Achievement melalui user_achievements
     public function achievements(): BelongsToMany
     {

@@ -2,9 +2,7 @@
 
     <!-- Logo -->
     <div class="h-24 flex items-center px-6 border-b border-[#C8DDD5]/80">
-
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
-
             <img
                 src="{{ asset('images/icon_habit.png') }}"
                 alt="HabitBuilder"
@@ -14,17 +12,14 @@
                 <h1 class="text-xl font-bold tracking-tight text-slate-900">
                     HabitBuilder
                 </h1>
-
                 <p class="text-[10px] uppercase tracking-widest text-emeraldAction font-semibold">
                     BUILD BETTER HABITS
                 </p>
             </div>
-
         </a>
-
     </div>
 
-    <!-- Navigation -->
+    <!-- Navigation Utama -->
     <nav class="flex-1 px-4 py-6 space-y-2">
 
         <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
@@ -49,12 +44,18 @@
 
     </nav>
 
-    <!-- Bottom -->
-    <div class="px-4 py-6 border-t border-[#C8DDD5]/80">
+    <!-- Bottom: Settings, Profile & Logout -->
+    <div class="px-4 py-6 border-t border-[#C8DDD5]/80 space-y-2">
 
         <x-nav-link href="{{ route('profile.edit') }}" :active="request()->routeIs('profile.*')">
             <i class="bi bi-person-circle text-lg"></i>
             <span>Profile</span>
+        </x-nav-link>
+
+         <!-- Settings Menu -->
+        <x-nav-link href="{{ route('settings.index') }}" :active="request()->routeIs('settings.*')">
+            <i class="bi bi-gear-fill text-lg"></i>
+            <span>Settings</span>
         </x-nav-link>
 
         <form method="POST" action="{{ route('logout') }}">
@@ -73,7 +74,6 @@
                 <span>Logout</span>
 
             </button>
-
         </form>
 
     </div>
