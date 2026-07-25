@@ -58,8 +58,11 @@
                     <textarea name="description" placeholder="Minimal 10 halaman per hari" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
                 </div>
 
-                <button type="submit" class="w-full bg-emeraldAction text-white py-3.5 rounded-xl font-bold hover:bg-[#0F6E52] transition-all duration-300 shadow-md flex items-center justify-center gap-2 mt-4">
-                    <span>+</span> Simpan Kategori
+                <button
+                    type="submit"
+                    class="w-full py-3 rounded-xl bg-emeraldAction text-white font-semibold
+           hover:bg-[#126B4D] transition duration-200 shadow-md hover:scale-[1.01]">
+                    Simpan Habit
                 </button>
             </form>
         </div>

@@ -288,7 +288,7 @@
                             </div>
                             <div class="p-3 bg-white/80 rounded-xl border border-emerald-100 shadow-2xs">
                                 <span class="text-[10px] text-slate-400 font-medium uppercase">Best Streak</span>
-                                <p class="text-sm font-extrabold text-emeraldAction mt-0.5">🏆 16 Days</p>
+                                <p class="text-sm font-extrabold text-emeraldAction mt-0.5">🏆 {{ $bestStreak }} Days</p>
                             </div>
                         </div>
 

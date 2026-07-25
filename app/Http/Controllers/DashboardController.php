@@ -14,7 +14,7 @@ class DashboardController extends Controller
     {
         $userId = Auth::id();
         $today = Carbon::now()->timezone('Asia/Jakarta')->toDateString();
-        
+
         // Ambil tahun dan bulan untuk preview kalender di dashboard (default bulan berjalan)
         $year = $request->input('year', Carbon::now()->year);
         $month = $request->input('month', Carbon::now()->month);
@@ -85,12 +85,15 @@ class DashboardController extends Controller
 
         $totalHabits = $allUserHabits->count();
 
+        $bestStreak = $this->getBestStreak($userId);
+
         // Ambil data kalender konsistensi bulanan untuk widget dashboard
         $calendarData = $this->getMonthlyConsistencyData($userId, $year, $month);
 
         return view('dashboard', compact(
             'todayHabits',
             'currentStreak',
+            'bestStreak',
             'recentActivities',
             'completionRate',
             'completedHabitIds',
@@ -110,6 +113,10 @@ class DashboardController extends Controller
         $year = $request->input('year', $today->year);
         $month = $request->input('month', $today->month);
 
+        $currentDate = Carbon::create($year, $month, 1);
+        $prevMonth = $currentDate->copy()->subMonth();
+        $nextMonth = $currentDate->copy()->addMonth();
+
         $totalHabits = Habit::where('user_id', $userId)->count();
 
         $totalCompletedLogs = HabitLog::whereHas('habit', function ($query) use ($userId) {
@@ -120,14 +127,14 @@ class DashboardController extends Controller
             ->whereHas('habit', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })->count();
-            
+
         $consistencyScore = $totalHabits > 0 ? round(($todayCompleted / $totalHabits) * 100) : 0;
 
         $weeklyData = [];
-        $completedThisWeek = 0; 
+        $completedThisWeek = 0;
         for ($i = 6; $i >= 0; $i--) {
             $date = $today->copy()->subDays($i);
-            
+
             $completedCount = HabitLog::whereDate('log_date', $date->toDateString())
                 ->whereHas('habit', function ($query) use ($userId) {
                     $query->where('user_id', $userId);
@@ -158,6 +165,8 @@ class DashboardController extends Controller
             }
         }
 
+        $bestStreak = $this->getBestStreak($userId);
+
         $mostActiveHabit = Habit::where('user_id', $userId)
             ->withCount(['logs' => function ($query) {
                 $query->where('status', 'completed');
@@ -165,8 +174,8 @@ class DashboardController extends Controller
             ->orderByDesc('logs_count')
             ->first();
 
-        $mostActiveCategory = ($mostActiveHabit && $mostActiveHabit->category) 
-            ? $mostActiveHabit->category->name 
+        $mostActiveCategory = ($mostActiveHabit && $mostActiveHabit->category)
+            ? $mostActiveHabit->category->name
             : 'Belum Ada';
 
         $smartInsight = "Mulai centang habit pertamamu untuk melihat analisis performa di sini.";
@@ -180,64 +189,100 @@ class DashboardController extends Controller
             }
         }
 
-        // Ambil data kalender bulanan untuk halaman analytics
+       
         $calendarData = $this->getMonthlyConsistencyData($userId, $year, $month);
 
+        // Hitung statistik ringkasaN
+        $completedDaysCount = collect($calendarData)->where('status', 'green')->count();
+        $partialDaysCount = collect($calendarData)->where('status', 'yellow')->count();
+        $missedDaysCount = collect($calendarData)->where('status', 'red')->count();
+
         return view('analytics.index', compact(
-            'totalHabits', 
-            'totalCompletedLogs', 
-            'consistencyScore', 
+            'totalHabits',
+            'totalCompletedLogs',
+            'consistencyScore',
             'weeklyData',
             'currentStreak',
+            'bestStreak',
             'mostActiveCategory',
             'smartInsight',
             'calendarData',
             'year',
-            'month'
+            'month',
+            'prevMonth',
+            'nextMonth',
+            'completedDaysCount',
+            'partialDaysCount',
+            'missedDaysCount'
         ));
     }
 
-    /**
-     * Helper untuk menghitung status konsistensi kalender bulanan (Green, Yellow, Red, White)
-     */
     private function getMonthlyConsistencyData($userId, $year, $month)
     {
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
         $calendarData = [];
         $habits = Habit::where('user_id', $userId)->get();
-        $todayStr = Carbon::now()->timezone('Asia/Jakarta')->toDateString();
+        $today = Carbon::today('Asia/Jakarta')->toDateString();
 
         for ($day = 1; $day <= $daysInMonth; $day++) {
-            $dateString = sprintf('%04d-%02d-%02d', $year, $month, $day);
-            
-            // Jangan evaluasi hari di masa depan (biarkan putih/default)
-            if ($dateString > $todayStr) {
-                $calendarData[$day] = ['status' => 'white', 'label' => 'Future'];
+
+            $currentDateObj = Carbon::create($year, $month, $day);
+            $currentDateStr = $currentDateObj->toDateString();
+
+            // Hari di masa depan
+            if ($currentDateStr > $today) {
+                $calendarData[$day] = [
+                    'status' => 'white',
+                    'label' => 'Future'
+                ];
                 continue;
             }
 
-            $currentDate = Carbon::parse($dateString);
-            $dayOfWeek = strtolower($currentDate->format('l'));
+            $dayOfWeek = strtolower($currentDateObj->format('l'));
 
-            // Tentukan habit yang seharusnya terjadwal di hari itu
-            $scheduledHabits = $habits->filter(function ($habit) use ($currentDate, $dayOfWeek) {
-                if ($habit->frequency === 'daily') return true;
-                if ($habit->frequency === 'weekdays' && !in_array($dayOfWeek, ['saturday', 'sunday'])) return true;
-                if ($habit->frequency === 'weekend' && in_array($dayOfWeek, ['saturday', 'sunday'])) return true;
-                return false;
+            // Habit yang memang sudah ada pada tanggal tersebut
+            $scheduledHabits = $habits->filter(function ($habit) use ($currentDateStr, $currentDateObj, $dayOfWeek) {
+
+                if ($habit->created_at && Carbon::parse($habit->created_at)->toDateString() > $currentDateStr) {
+                    return false;
+                }
+
+                switch ($habit->frequency) {
+                    case 'daily':
+                        return true;
+                    case 'weekdays':
+                        return !in_array($dayOfWeek, ['saturday', 'sunday']);
+                    case 'weekend':
+                        return in_array($dayOfWeek, ['saturday', 'sunday']);
+                    case 'weekly':
+                        return $dayOfWeek === 'monday';
+                    case 'one_time':
+                        $alreadyCompleted = HabitLog::where('habit_id', $habit->id)
+                            ->where('status', 'completed')
+                            ->where('log_date', '<=', $currentDateStr)
+                            ->exists();
+                        return !$alreadyCompleted;
+                    default:
+                        return false;
+                }
             });
 
             $totalScheduled = $scheduledHabits->count();
 
-            if ($totalScheduled === 0) {
-                $calendarData[$day] = ['status' => 'white', 'label' => 'No Schedule'];
+            if ($totalScheduled == 0) {
+                $calendarData[$day] = [
+                    'status' => 'white',
+                    'label' => 'No Schedule'
+                ];
                 continue;
             }
 
-            // Ambil log yang benar-benar selesai pada tanggal tersebut
-            $completedHabitIds = HabitLog::where('user_id', $userId)
-                ->whereDate('log_date', $dateString)
+            // Ambil log yang benar-benar tersimpan di tanggal ini
+            $completedHabitIds = HabitLog::where('log_date', $currentDateStr)
                 ->where('status', 'completed')
+                ->whereHas('habit', function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })
                 ->pluck('habit_id')
                 ->toArray();
 
@@ -248,16 +293,60 @@ class DashboardController extends Controller
                 }
             }
 
-            // Tentukan Status Berdasarkan Data Nyata
-            if ($completedCount === $totalScheduled) {
-                $calendarData[$day] = ['status' => 'green', 'label' => 'Completed']; // 🟢 Hijau
+            if ($completedCount == $totalScheduled) {
+                $calendarData[$day] = [
+                    'status' => 'green',
+                    'label' => 'Completed'
+                ];
             } elseif ($completedCount > 0) {
-                $calendarData[$day] = ['status' => 'yellow', 'label' => 'Partial']; // 🟡 Kuning
+                $calendarData[$day] = [
+                    'status' => 'yellow',
+                    'label' => 'Partial'
+                ];
             } else {
-                $calendarData[$day] = ['status' => 'red', 'label' => 'Missed'];    // 🔴 Merah (atau putih jika ingin bersih)
+                $calendarData[$day] = [
+                    'status' => 'red',
+                    'label' => 'Missed'
+                ];
             }
         }
 
         return $calendarData;
+    }
+
+    private function getBestStreak($userId)
+    {
+        $dates = HabitLog::whereHas('habit', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
+            ->where('status', 'completed')
+            ->select('log_date')
+            ->distinct()
+            ->orderBy('log_date')
+            ->pluck('log_date')
+            ->map(fn($date) => Carbon::parse($date)->toDateString())
+            ->values();
+
+        if ($dates->isEmpty()) {
+            return 0;
+        }
+
+        $best = 1;
+        $current = 1;
+
+        for ($i = 1; $i < $dates->count(); $i++) {
+
+            $prev = Carbon::parse($dates[$i - 1]);
+            $now = Carbon::parse($dates[$i]);
+
+            if ($prev->copy()->addDay()->equalTo($now)) {
+                $current++;
+            } else {
+                $best = max($best, $current);
+                $current = 1;
+            }
+        }
+
+        return max($best, $current);
     }
 }

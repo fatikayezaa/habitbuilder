@@ -1,54 +1,81 @@
-<aside class="w-64 min-h-screen bg-[#D4E6DF] dark:bg-slate-900 border-r border-[#C8DDD5] dark:border-slate-800 flex flex-col transition-all duration-300 shadow-sm">
-    
+<aside class="w-64 min-h-screen bg-gradient-to-b from-[#E2F0EA] via-[#D8E9E1] to-[#D0E4DB] border-r border-[#C8DDD5] flex flex-col shadow-sm">
+
     <!-- Logo -->
-    <div class="h-24 flex items-center px-6 border-b border-[#C8DDD5] dark:border-slate-800">
-        <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
-            <!-- Ikon yang tajam -->
-            <img src="{{ asset('images/icon_habit.png') }}" alt="HabitBuilder Icon" class="h-12 w-12 object-contain">
-            
-            <!-- Teks dengan Typography -->
-            <div class="flex flex-col">
-                <span class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
+    <div class="h-24 flex items-center px-6 border-b border-[#C8DDD5]/80">
+
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
+
+            <img
+                src="{{ asset('images/icon_habit.png') }}"
+                alt="HabitBuilder"
+                class="w-12 h-12 object-contain transition-transform duration-300 group-hover:scale-105">
+
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-slate-900">
                     HabitBuilder
-                </span>
-                <span class="text-[10px] uppercase tracking-widest text-emerald-800 dark:text-emerald-400 font-semibold">
-                    Build Better Habits
-                </span>
+                </h1>
+
+                <p class="text-[10px] uppercase tracking-widest text-emeraldAction font-semibold">
+                    BUILD BETTER HABITS
+                </p>
             </div>
+
         </a>
+
     </div>
 
-    <!-- Navigation Menu -->
+    <!-- Navigation -->
     <nav class="flex-1 px-4 py-6 space-y-2">
+
         <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-            🏠 Dashboard
+            <span class="bi bi-house-door-fill text-lg"></span>
+            <span>Dashboard</span>
         </x-nav-link>
 
         <x-nav-link href="{{ route('habits.index') }}" :active="request()->routeIs('habits.*')">
-            ✅ Habits
+            <i class="bi bi-check2-square text-lg"></i>
+            <span>Habits</span>
         </x-nav-link>
 
         <x-nav-link href="{{ route('categories.index') }}" :active="request()->routeIs('categories.*')">
-            📂 Categories
+            <i class="bi bi-folder2-open text-lg"></i>
+            <span>Categories</span>
         </x-nav-link>
 
         <x-nav-link href="{{ route('analytics.index') }}" :active="request()->routeIs('analytics.*')">
-            📊 Analytics
+            <i class="bi bi-bar-chart-line-fill text-lg"></i>
+            <span>Analytics</span>
         </x-nav-link>
+
     </nav>
 
-    <!-- Bottom Actions -->
-    <div class="px-4 py-6 border-t border-[#C8DDD5] dark:border-slate-800">
+    <!-- Bottom -->
+    <div class="px-4 py-6 border-t border-[#C8DDD5]/80">
+
         <x-nav-link href="{{ route('profile.edit') }}" :active="request()->routeIs('profile.*')">
-            👤 Profile
+            <i class="bi bi-person-circle text-lg"></i>
+            <span>Profile</span>
         </x-nav-link>
-        
+
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-            <button type="submit" class="w-full text-left px-4 py-2 mt-2 text-sm text-slate-700 dark:text-slate-400 hover:text-emeraldAction dark:hover:text-emerald-400 font-medium transition-colors rounded-xl hover:bg-white/50">
-                🚪 Logout
+
+            <button
+                type="submit"
+                class="mt-2 flex w-full items-center gap-3 rounded-xl px-5 py-3
+                       text-slate-700 font-medium
+                       transition-all duration-200
+                       hover:bg-white/70
+                       hover:text-emeraldAction
+                       hover:shadow-sm">
+
+                <i class="bi bi-box-arrow-right text-lg"></i>
+                <span>Logout</span>
+
             </button>
+
         </form>
+
     </div>
 
 </aside>
