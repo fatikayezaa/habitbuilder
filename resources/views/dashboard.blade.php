@@ -19,7 +19,7 @@
             </div>
         </div>
 
-        <!-- Stat Cards dengan Efek Hover Premium -->
+        <!-- Stat Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                 <x-stat-card title="Current Streak" value="{{ $currentStreak }} Days" icon="🔥" color="amber" />
@@ -35,10 +35,10 @@
             </div>
         </div>
 
-        <!-- Main Content Area: Layout Seimbang Kiri & Kanan -->
+        <!-- Main Content Area -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            <!-- KOLOM KIRI (Today's Habits, Recent Activity, & Achievements) -> Span 2 -->
+            <!-- KOLOM KIRI -->
             <div class="lg:col-span-2 space-y-8">
 
                 <!-- Today's Habits Card -->
@@ -83,7 +83,22 @@
                                             </span>
                                             @endif
                                         </div>
-                                        <p class="text-xs text-slate-500 mt-0.5">Target: <span class="font-medium text-slate-700">{{ $habit->target }} {{ $habit->target_unit }}</span></p>
+
+                                        <!-- Badge Hari -->
+                                        <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                                            <span class="text-[10px] text-slate-400 font-semibold">📅 Hari:</span>
+                                            @if($habit->schedules && count($habit->schedules) > 0)
+                                                @foreach($habit->schedules as $schedule)
+                                                    <span class="text-[10px] font-bold px-2 py-0.5 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-md">
+                                                        {{ $schedule->day_of_week }}
+                                                    </span>
+                                                @endforeach
+                                            @else
+                                                <span class="text-[10px] font-medium text-slate-400">Setiap Hari</span>
+                                            @endif
+                                        </div>
+
+                                        <p class="text-xs text-slate-500 mt-1">Target: <span class="font-medium text-slate-700">{{ $habit->target }} {{ $habit->target_unit }}</span></p>
                                     </div>
                                 </div>
                                 <form action="{{ route('habits.check-in', $habit->id) }}" method="POST">
@@ -103,7 +118,7 @@
                     </div>
                 </x-card>
 
-                <!-- Recent Activity Card (Dengan Max-Height 350px & Scroll Halus) -->
+                <!-- Recent Activity Card -->
                 <x-card class="transition-all duration-300 hover:shadow-md">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
@@ -143,7 +158,7 @@
                     </div>
                 </x-card>
 
-                <!-- Achievements Grid 2x2 dengan Warna Gamifikasi Hidup -->
+                <!-- Achievements Grid -->
                 <x-card class="transition-all duration-300 hover:shadow-md">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
@@ -152,7 +167,6 @@
                         </div>
 
                         <div class="grid grid-cols-2 gap-3.5">
-                            <!-- Achievement 1: First Habit -->
                             @php $isFirstUnlocked = ($totalCompletionsAllTime ?? 0) >= 1; @endphp
                             <div class="flex flex-col p-4 rounded-2xl border shadow-xs transition-all hover:-translate-y-0.5 {{ $isFirstUnlocked ? 'bg-[#FFF8E5] border-amber-200' : 'bg-slate-50/50 border-slate-200/80 opacity-60' }}">
                                 <div class="flex items-center justify-between mb-3">
@@ -163,7 +177,6 @@
                                 <p class="text-[11px] text-slate-500 mt-0.5">Selesaikan habit pertama</p>
                             </div>
 
-                            <!-- Achievement 2: 7 Day Streak -->
                             @php
                             $isSevenUnlocked = ($currentStreak ?? 0) >= 7;
                             $sevenProgress = ($currentStreak ?? 0) . '/7 Days';
@@ -177,7 +190,6 @@
                                 <p class="text-[11px] text-slate-500 mt-0.5">Konsisten seminggu</p>
                             </div>
 
-                            <!-- Achievement 3: Perfect Day -->
                             @php $isPerfectUnlocked = ($todayHabitsTarget > 0 && $todayHabitsCompleted >= $todayHabitsTarget); @endphp
                             <div class="flex flex-col p-4 rounded-2xl border shadow-xs transition-all hover:-translate-y-0.5 {{ $isPerfectUnlocked ? 'bg-[#ECFFF6] border-emerald-200' : 'bg-slate-50/50 border-slate-200/80 opacity-60' }}">
                                 <div class="flex items-center justify-between mb-3">
@@ -188,7 +200,6 @@
                                 <p class="text-[11px] text-slate-500 mt-0.5">Selesaikan target hari ini</p>
                             </div>
 
-                            <!-- Achievement 4: 30 Day Streak -->
                             @php
                             $isThirtyUnlocked = ($currentStreak ?? 0) >= 30;
                             $thirtyProgress = ($currentStreak ?? 0) . '/30 Days';
@@ -206,7 +217,7 @@
                 </x-card>
             </div>
 
-            <!-- KOLOM KANAN (Weekly Progress & Expanded Monthly Consistency Calendar) -> Span 1 -->
+            <!-- KOLOM KANAN -->
             <div class="space-y-8">
 
                 <!-- Weekly Progress Ring Card -->
@@ -232,7 +243,7 @@
                     </div>
                 </x-card>
 
-                <!-- Expanded Monthly Consistency Calendar & Streak Summary (Menyeimbangkan Tinggi Kolom Kiri) -->
+                <!-- Expanded Monthly Consistency Calendar & Streak Summary -->
                 <x-card class="bg-gradient-to-br from-sage-100/40 to-emerald-50/30 border-emerald-200/60 transition-all duration-300 hover:shadow-md">
                     <div class="p-6 space-y-5">
                         <div class="flex items-center justify-between">
@@ -246,7 +257,7 @@
                             <span class="text-xs font-bold text-emerald-800 bg-emerald-200/50 px-2 py-1 rounded-lg">🔥 Active</span>
                         </div>
 
-                        <!-- Grid Kalender Bulanan Penuh (Dinamis dari Controller) -->
+                        <!-- Grid Kalender Bulanan Penuh -->
                         <div class="space-y-1.5">
                             <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 pb-1">
                                 <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
@@ -261,7 +272,6 @@
                                 default => 'bg-white text-slate-400 border border-slate-200'
                                 };
 
-                                // Tandai hari ini (25 Juli 2026) dengan ring khusus
                                 $isToday = ($day == now()->day);
                                 $todayRing = $isToday ? 'ring-2 ring-emerald-700 ring-offset-1' : '';
                                 @endphp

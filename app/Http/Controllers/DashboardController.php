@@ -15,31 +15,41 @@ class DashboardController extends Controller
         $userId = Auth::id();
         $today = Carbon::now()->timezone('Asia/Jakarta')->toDateString();
 
-        // Ambil tahun dan bulan untuk preview kalender di dashboard (default bulan berjalan)
+        $daysMap = [
+            'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'
+        ];
+        $todayIndoName = $daysMap[Carbon::now()->timezone('Asia/Jakarta')->format('l')];
+
         $year = $request->input('year', Carbon::now()->year);
         $month = $request->input('month', Carbon::now()->month);
 
-        $allUserHabits = Habit::where('user_id', $userId)->get();
+        $allUserHabits = Habit::with(['schedules', 'category'])->where('user_id', $userId)->get();
+
+        $todayHabits = $allUserHabits->filter(function ($habit) use ($todayIndoName, $today) {
+            $isScheduledToday = $habit->schedules->contains('day_of_week', $todayIndoName);
+
+            if (!$isScheduledToday) {
+                return false;
+            }
+
+            if ($habit->frequency === 'one_time') {
+                $alreadyCompleted = HabitLog::where('habit_id', $habit->id)
+                    ->where('status', 'completed')
+                    ->whereDate('log_date', '<', $today)
+                    ->exists();
+                return !$alreadyCompleted;
+            }
+
+            return true;
+        });
 
         $completedHabitIds = HabitLog::whereDate('log_date', $today)
-            ->whereHas('habit', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
+            ->whereIn('habit_id', $todayHabits->pluck('id'))
+            ->where('status', 'completed')
             ->pluck('habit_id')
             ->toArray();
 
-        $todayHabits = $allUserHabits->filter(function ($habit) use ($today) {
-            if ($habit->frequency !== 'one_time') {
-                return true;
-            }
-
-            return !HabitLog::where('habit_id', $habit->id)
-                ->where('status', 'completed')
-                ->whereDate('log_date', '<=', $today)
-                ->exists();
-        });
-
-        // Hitung Current Streak (berdasarkan hari log aktif)
         $currentStreak = 0;
         $checkDate = $today;
         while (true) {
@@ -56,19 +66,8 @@ class DashboardController extends Controller
             }
         }
 
-        $allPossibleTodayHabits = $allUserHabits->filter(function ($habit) use ($today) {
-            if ($habit->frequency !== 'one_time') {
-                return true;
-            }
-
-            return !HabitLog::where('habit_id', $habit->id)
-                ->where('status', 'completed')
-                ->whereDate('log_date', '<', $today)
-                ->exists();
-        });
-
-        $todayHabitsTarget = $allPossibleTodayHabits->count();
-        $todayHabitsCompleted = count(array_intersect($completedHabitIds, $allPossibleTodayHabits->pluck('id')->toArray()));
+        $todayHabitsTarget = $todayHabits->count();
+        $todayHabitsCompleted = count(array_intersect($completedHabitIds, $todayHabits->pluck('id')->toArray()));
         $completionRate = $todayHabitsTarget > 0 ? min(round(($todayHabitsCompleted / $todayHabitsTarget) * 100), 100) : 0;
 
         $recentActivities = HabitLog::with('habit')
@@ -83,11 +82,10 @@ class DashboardController extends Controller
             $query->where('user_id', $userId);
         })->where('status', 'completed')->count();
 
-        $totalHabits = $allUserHabits->count();
+        $totalHabits = $todayHabitsTarget;
 
         $bestStreak = $this->getBestStreak($userId);
 
-        // Ambil data kalender konsistensi bulanan untuk widget dashboard
         $calendarData = $this->getMonthlyConsistencyData($userId, $year, $month);
 
         return view('dashboard', compact(
@@ -117,16 +115,36 @@ class DashboardController extends Controller
         $prevMonth = $currentDate->copy()->subMonth();
         $nextMonth = $currentDate->copy()->addMonth();
 
-        $totalHabits = Habit::where('user_id', $userId)->count();
+        $daysMap = [
+            'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'
+        ];
+        $todayIndoName = $daysMap[$today->format('l')];
+
+        $todayScheduledHabits = Habit::with('schedules')->where('user_id', $userId)->get()->filter(function ($habit) use ($todayIndoName, $today) {
+            if (!$habit->schedules->contains('day_of_week', $todayIndoName)) {
+                return false;
+            }
+            if ($habit->frequency === 'one_time') {
+                $alreadyCompleted = HabitLog::where('habit_id', $habit->id)
+                    ->where('status', 'completed')
+                    ->whereDate('log_date', '<', $today->toDateString())
+                    ->exists();
+                return !$alreadyCompleted;
+            }
+            return true;
+        });
+
+        $totalHabits = $todayScheduledHabits->count();
 
         $totalCompletedLogs = HabitLog::whereHas('habit', function ($query) use ($userId) {
             $query->where('user_id', $userId);
         })->where('status', 'completed')->count();
 
         $todayCompleted = HabitLog::whereDate('log_date', $today->toDateString())
-            ->whereHas('habit', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })->count();
+            ->whereIn('habit_id', $todayScheduledHabits->pluck('id'))
+            ->where('status', 'completed')
+            ->count();
 
         $consistencyScore = $totalHabits > 0 ? round(($todayCompleted / $totalHabits) * 100) : 0;
 
@@ -134,14 +152,31 @@ class DashboardController extends Controller
         $completedThisWeek = 0;
         for ($i = 6; $i >= 0; $i--) {
             $date = $today->copy()->subDays($i);
+            $dayIndoNameForLoop = $daysMap[$date->format('l')];
+
+            $dayScheduledHabits = Habit::with('schedules')->where('user_id', $userId)->get()->filter(function ($habit) use ($dayIndoNameForLoop, $date) {
+                if (!$habit->schedules->contains('day_of_week', $dayIndoNameForLoop)) {
+                    return false;
+                }
+                if ($habit->frequency === 'one_time') {
+                    $alreadyCompleted = HabitLog::where('habit_id', $habit->id)
+                        ->where('status', 'completed')
+                        ->whereDate('log_date', '<', $date->toDateString())
+                        ->exists();
+                    return !$alreadyCompleted;
+                }
+                return true;
+            });
+
+            $dayTargetCount = $dayScheduledHabits->count();
 
             $completedCount = HabitLog::whereDate('log_date', $date->toDateString())
-                ->whereHas('habit', function ($query) use ($userId) {
-                    $query->where('user_id', $userId);
-                })->count();
+                ->whereIn('habit_id', $dayScheduledHabits->pluck('id'))
+                ->where('status', 'completed')
+                ->count();
 
             $completedThisWeek += $completedCount;
-            $percentage = $totalHabits > 0 ? round(($completedCount / $totalHabits) * 100) : 0;
+            $percentage = $dayTargetCount > 0 ? round(($completedCount / $dayTargetCount) * 100) : 0;
 
             $weeklyData[] = [
                 'day' => $date->translatedFormat('D'),
@@ -189,10 +224,8 @@ class DashboardController extends Controller
             }
         }
 
-       
         $calendarData = $this->getMonthlyConsistencyData($userId, $year, $month);
 
-        // Hitung statistik ringkasaN
         $completedDaysCount = collect($calendarData)->where('status', 'green')->count();
         $partialDaysCount = collect($calendarData)->where('status', 'yellow')->count();
         $missedDaysCount = collect($calendarData)->where('status', 'red')->count();
@@ -221,15 +254,18 @@ class DashboardController extends Controller
     {
         $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
         $calendarData = [];
-        $habits = Habit::where('user_id', $userId)->get();
+        $habits = Habit::with('schedules')->where('user_id', $userId)->get();
         $today = Carbon::today('Asia/Jakarta')->toDateString();
 
-        for ($day = 1; $day <= $daysInMonth; $day++) {
+        $daysMap = [
+            'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'
+        ];
 
+        for ($day = 1; $day <= $daysInMonth; $day++) {
             $currentDateObj = Carbon::create($year, $month, $day);
             $currentDateStr = $currentDateObj->toDateString();
 
-            // Hari di masa depan
             if ($currentDateStr > $today) {
                 $calendarData[$day] = [
                     'status' => 'white',
@@ -238,33 +274,28 @@ class DashboardController extends Controller
                 continue;
             }
 
-            $dayOfWeek = strtolower($currentDateObj->format('l'));
+            $dayEnglish = $currentDateObj->format('l');
+            $dayIndo = $daysMap[$dayEnglish] ?? '';
 
-            // Habit yang memang sudah ada pada tanggal tersebut
-            $scheduledHabits = $habits->filter(function ($habit) use ($currentDateStr, $currentDateObj, $dayOfWeek) {
-
+            $scheduledHabits = $habits->filter(function ($habit) use ($currentDateStr, $dayIndo) {
                 if ($habit->created_at && Carbon::parse($habit->created_at)->toDateString() > $currentDateStr) {
                     return false;
                 }
 
-                switch ($habit->frequency) {
-                    case 'daily':
-                        return true;
-                    case 'weekdays':
-                        return !in_array($dayOfWeek, ['saturday', 'sunday']);
-                    case 'weekend':
-                        return in_array($dayOfWeek, ['saturday', 'sunday']);
-                    case 'weekly':
-                        return $dayOfWeek === 'monday';
-                    case 'one_time':
-                        $alreadyCompleted = HabitLog::where('habit_id', $habit->id)
-                            ->where('status', 'completed')
-                            ->where('log_date', '<=', $currentDateStr)
-                            ->exists();
-                        return !$alreadyCompleted;
-                    default:
-                        return false;
+                $isScheduled = $habit->schedules->contains('day_of_week', $dayIndo);
+                if (!$isScheduled) {
+                    return false;
                 }
+
+                if ($habit->frequency === 'one_time') {
+                    $alreadyCompleted = HabitLog::where('habit_id', $habit->id)
+                        ->where('status', 'completed')
+                        ->where('log_date', '<', $currentDateStr)
+                        ->exists();
+                    return !$alreadyCompleted;
+                }
+
+                return true;
             });
 
             $totalScheduled = $scheduledHabits->count();
@@ -277,7 +308,6 @@ class DashboardController extends Controller
                 continue;
             }
 
-            // Ambil log yang benar-benar tersimpan di tanggal ini
             $completedHabitIds = HabitLog::where('log_date', $currentDateStr)
                 ->where('status', 'completed')
                 ->whereHas('habit', function ($query) use ($userId) {
@@ -335,7 +365,6 @@ class DashboardController extends Controller
         $current = 1;
 
         for ($i = 1; $i < $dates->count(); $i++) {
-
             $prev = Carbon::parse($dates[$i - 1]);
             $now = Carbon::parse($dates[$i]);
 

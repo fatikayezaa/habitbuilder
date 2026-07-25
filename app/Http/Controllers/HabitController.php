@@ -5,22 +5,21 @@ namespace App\Http\Controllers;
 use App\Models\Habit;
 use App\Models\Category;
 use App\Models\HabitLog;
+use App\Models\HabitSchedule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class HabitController extends Controller
 {
-    // Index Habit
     public function index()
     {
-        $habits = Habit::with('category')->where('user_id', Auth::id())->get();
+        $habits = Habit::with(['category', 'schedules'])->where('user_id', Auth::id())->get();
         $categories = Category::where('user_id', Auth::id())->get();
 
         return view('habits.index', compact('habits', 'categories'));
     }
 
-    // Simpan Habit Baru
     public function store(Request $request)
     {
         $request->validate([
@@ -30,9 +29,10 @@ class HabitController extends Controller
             'target'      => 'required|string|max:100',
             'target_unit' => 'required|string|max:50',
             'description' => 'nullable|string',
+            'days'        => 'nullable|array',
         ]);
 
-        Habit::create([
+        $habit = Habit::create([
             'user_id'     => Auth::id(),
             'category_id' => $request->category_id,
             'title'       => $request->title,
@@ -43,19 +43,20 @@ class HabitController extends Controller
             'is_active'   => true,
         ]);
 
+        $this->saveSchedules($habit, $request);
+
         return redirect()->back();
     }
 
-    // Hapus Habit
     public function destroy(Habit $habit)
     {
         if ($habit->user_id === Auth::id()) {
+            $habit->schedules()->delete(); 
             $habit->delete();
         }
         return redirect()->back();
     }
 
-    // Form Edit Habit
     public function edit(Habit $habit)
     {
         if ($habit->user_id !== Auth::id()) {
@@ -67,7 +68,6 @@ class HabitController extends Controller
         return view('habits.edit', compact('habit', 'categories'));
     }
 
-    // Update Habit
     public function update(Request $request, Habit $habit)
     {
         if ($habit->user_id !== Auth::id()) {
@@ -81,6 +81,7 @@ class HabitController extends Controller
             'target'      => 'required|string|max:100',
             'target_unit' => 'required|string|max:50',
             'description' => 'nullable|string',
+            'days'        => 'nullable|array',
         ]);
 
         $habit->update([
@@ -92,10 +93,64 @@ class HabitController extends Controller
             'frequency'   => $request->frequency,
         ]);
 
+        $habit->schedules()->delete();
+        $this->saveSchedules($habit, $request);
+
         return redirect('/habits');
     }
 
-    // Proses Check-in Habit
+    private function saveSchedules(Habit $habit, Request $request)
+    {
+        $days = [];
+
+        // Mapping hari Inggris ke Indonesia
+        $indoDays = [
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu',
+            'Sunday' => 'Minggu'
+        ];
+
+        if ($request->has('days') && is_array($request->days) && count($request->days) > 0) {
+            foreach ($request->days as $d) {
+                $days[] = $indoDays[$d] ?? $d;
+            }
+        } else {
+            $rawDays = [];
+            switch ($habit->frequency) {
+                case 'daily':
+                    $rawDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                    break;
+                case 'weekdays':
+                    $rawDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                    break;
+                case 'weekend':
+                    $rawDays = ['Saturday', 'Sunday'];
+                    break;
+                case 'weekly':
+                    $rawDays = ['Sunday']; 
+                    break;
+                case 'one_time':
+                    $rawDays = [Carbon::now()->format('l')]; 
+                    break;
+            }
+
+            foreach ($rawDays as $d) {
+                $days[] = $indoDays[$d] ?? $d;
+            }
+        }
+
+        foreach ($days as $day) {
+            HabitSchedule::create([
+                'habit_id'    => $habit->id,
+                'day_of_week' => $day,
+            ]);
+        }
+    }
+
     public function checkIn(Request $request, Habit $habit)
     {
         if ($habit->user_id !== Auth::id()) {

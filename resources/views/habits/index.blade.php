@@ -53,6 +53,20 @@
                     </select>
                 </div>
 
+                <!-- Pilihan Hari Spesifik (Checkbox) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Hari Spesifik (Opsional - Jika ingin kustom)</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <label class="inline-flex items-center"><input type="checkbox" name="days[]" value="Monday" class="rounded border-gray-300 text-indigo-600 shadow-sm"> <span class="ml-2 text-sm text-gray-700">Senin</span></label>
+                        <label class="inline-flex items-center"><input type="checkbox" name="days[]" value="Tuesday" class="rounded border-gray-300 text-indigo-600 shadow-sm"> <span class="ml-2 text-sm text-gray-700">Selasa</span></label>
+                        <label class="inline-flex items-center"><input type="checkbox" name="days[]" value="Wednesday" class="rounded border-gray-300 text-indigo-600 shadow-sm"> <span class="ml-2 text-sm text-gray-700">Rabu</span></label>
+                        <label class="inline-flex items-center"><input type="checkbox" name="days[]" value="Thursday" class="rounded border-gray-300 text-indigo-600 shadow-sm"> <span class="ml-2 text-sm text-gray-700">Kamis</span></label>
+                        <label class="inline-flex items-center"><input type="checkbox" name="days[]" value="Friday" class="rounded border-gray-300 text-indigo-600 shadow-sm"> <span class="ml-2 text-sm text-gray-700">Jumat</span></label>
+                        <label class="inline-flex items-center"><input type="checkbox" name="days[]" value="Saturday" class="rounded border-gray-300 text-indigo-600 shadow-sm"> <span class="ml-2 text-sm text-gray-700">Sabtu</span></label>
+                        <label class="inline-flex items-center"><input type="checkbox" name="days[]" value="Sunday" class="rounded border-gray-300 text-indigo-600 shadow-sm"> <span class="ml-2 text-sm text-gray-700">Minggu</span></label>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi (Opsional)</label>
                     <textarea name="description" placeholder="Minimal 10 halaman per hari" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
@@ -91,6 +105,19 @@
 
                             <span>| Target: {{ $habit->target }} {{ $habit->target_unit }} | Frekuensi: {{ ucfirst($habit->frequency) }}</span>
                         </div>
+
+                        <!-- Menampilkan Hari Jadwal -->
+                        <div class="text-xs text-indigo-600 font-medium mt-1.5 flex items-center gap-1">
+                            <span>📅 Hari:</span>
+                            @if($habit->schedules && count($habit->schedules) > 0)
+                                @foreach($habit->schedules as $schedule)
+                                    <span class="bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100">{{ $schedule->day_of_week }}</span>
+                                @endforeach
+                            @else
+                                <span class="text-gray-400">Semua Hari / Tidak ada jadwal spesifik</span>
+                            @endif
+                        </div>
+
                         @if($habit->description)
                         <p class="text-xs text-gray-600 mt-1.5 italic">
                             "{{ $habit->description }}"
