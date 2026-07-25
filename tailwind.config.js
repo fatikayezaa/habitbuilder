@@ -9,7 +9,19 @@ export default {
     ],
 
     theme: {
-        extend: {},
+        extend: {
+            colors: {
+                sage: {
+                    50: '#F8FBFA',
+                    100: '#D4E6DF',
+                    200: '#C8DDD5',
+                },
+                emeraldAction: {
+                    DEFAULT: '#157F5C',
+                    hover: '#0F6E52',
+                }
+            },
+        },
     },
 
     plugins: [forms],
