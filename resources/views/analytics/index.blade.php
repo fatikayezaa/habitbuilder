@@ -1,10 +1,10 @@
 <x-layouts.app>
     <x-container class="py-8 space-y-8">
 
-        <!-- Header Halaman Analytics (Tombol Kembali Dipindah ke Kiri) -->
+        <!-- Header -->
         <div class="flex flex-col gap-1">
             <div class="flex items-center gap-3">
-                <a href="{{ route('dashboard') }}" class="w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 hover:text-slate-900 transition-colors" title="Kembali ke Dashboard">
+                <a href="{{ route('dashboard') }}" class="w-8 h-8 flex items-center justify-center bg-white text-slate-700 rounded-xl hover:bg-slate-100 transition-colors shadow-xs border border-slate-200" title="Dashboard">
                     <span class="font-bold">&larr;</span>
                 </a>
                 <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Performance Analytics</h1>
@@ -12,48 +12,48 @@
             <p class="text-slate-500 text-sm ml-11">Analisis mendalam mengenai konsistensi dan produktivitas kebiasaanmu.</p>
         </div>
 
-        <!-- Stat Cards Ringkasan Performa -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Stat Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <x-stat-card title="Total Check-Ins" value="{{ $totalCompletedLogs ?? 0 }} Times" icon="📊" color="emerald" />
             <x-stat-card title="Active Habits" value="{{ $totalHabits ?? 0 }} Habits" icon="🎯" color="indigo" />
             <x-stat-card title="Consistency Score" value="{{ $consistencyScore ?? 0 }}%" icon="⭐" color="amber" />
         </div>
 
-        <!-- Main Analytics Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <!-- Main Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- Kolom Kiri: Grafik Tren Mingguan -->
-            <div class="lg:col-span-2 space-y-8">
-                <x-card>
-                    <div class="p-6">
-                        <div class="flex justify-between items-center mb-6">
+            <!-- Grafik -->
+            <div class="lg:col-span-2">
+                <x-card class="h-full">
+                    <div class="p-6 flex flex-col h-full">
+                        <div class="flex justify-between items-center mb-4">
                             <div>
                                 <h3 class="font-bold text-lg text-slate-900">Weekly Consistency Trend</h3>
                                 <p class="text-xs text-slate-500 mt-0.5">Grafik penyelesaian habit dalam 7 hari terakhir.</p>
                             </div>
-                            <span class="text-xs font-semibold px-3 py-1 bg-slate-50 text-slate-600 border border-slate-200 rounded-lg">Last 7 Days</span>
+                            <span class="text-xs font-semibold px-3 py-1 bg-slate-50 text-slate-600 border border-slate-200 rounded-xl">Last 7 Days</span>
                         </div>
 
-                        <!-- Bar Chart (Menggunakan Chart.js) -->
-                        <div class="relative h-64 w-full mt-4">
+                        <div class="relative flex-1 w-full min-h-[330px]">
                             <canvas id="weeklyConsistencyChart"></canvas>
                         </div>
                     </div>
                 </x-card>
             </div>
 
-            <!-- Kolom Kanan: Productivity Insights (100% Data Riil) -->
-            <div class="space-y-8">
-                <x-card>
-                    <div class="p-6">
-                        <h3 class="font-bold text-slate-900">Productivity Insights</h3>
-                        <p class="text-xs text-slate-500 mt-0.5 mb-6">Highlight performa utamamu.</p>
+            <!-- Insights -->
+            <div>
+                <x-card class="h-full">
+                    <div class="p-6 flex flex-col justify-between h-full space-y-4">
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">Productivity Insights</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Highlight performa utamamu.</p>
+                        </div>
 
-                        <div class="space-y-3">
-                            <!-- Metrik 1: Current Streak -->
-                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                        <div class="space-y-4 my-auto">
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50/80 rounded-2xl border border-slate-100">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-base">🔥</div>
+                                    <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-base">🔥</div>
                                     <div>
                                         <h4 class="text-xs font-bold text-slate-800">Current Streak</h4>
                                         <p class="text-[10px] text-slate-400">Beruntun saat ini</p>
@@ -62,10 +62,9 @@
                                 <span class="text-sm font-extrabold text-slate-900">{{ $currentStreak }} Days</span>
                             </div>
 
-                            <!-- Metrik 2: Most Active Category -->
-                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50/80 rounded-2xl border border-slate-100">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-base">🏃</div>
+                                    <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-base">🏃</div>
                                     <div>
                                         <h4 class="text-xs font-bold text-slate-800">Most Active</h4>
                                         <p class="text-[10px] text-slate-400">Kategori favorit</p>
@@ -74,20 +73,69 @@
                                 <span class="text-sm font-extrabold text-slate-900 truncate max-w-[90px] text-right">{{ $mostActiveCategory }}</span>
                             </div>
 
-                            <!-- Insight Deskriptif Berbasis Data -->
-                            <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 space-y-2 mt-4">
+                            <div class="p-3.5 bg-gradient-to-br from-emerald-50/60 to-sage-100/40 rounded-2xl border border-emerald-200/60 space-y-1.5">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">💡</div>
-                                    <h4 class="text-xs font-bold text-slate-800">Smart Insight</h4>
+                                    <div class="w-6 h-6 rounded-lg bg-emerald-200/60 text-emerald-800 flex items-center justify-center font-bold text-xs">💡</div>
+                                    <h4 class="text-xs font-bold text-emerald-900">Smart Insight</h4>
                                 </div>
-                                <p class="text-[11px] text-slate-500 leading-relaxed">{{ $smartInsight }}</p>
+                                <p class="text-xs text-slate-600 leading-relaxed">{{ $smartInsight }}</p>
                             </div>
+                        </div>
+
+                        <div class="text-center pt-2">
+                            <span class="text-[10px] text-slate-400 font-medium">HabitBuilder Analytics v2.5</span>
                         </div>
                     </div>
                 </x-card>
             </div>
 
         </div>
+
+        <!-- Calendar -->
+        <x-card class="relative overflow-hidden bg-gradient-to-br from-white via-white to-emerald-50/30 border-emerald-100/60">
+            <div class="absolute -right-16 -top-16 w-64 h-64 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative p-6 space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                        <h3 class="font-bold text-lg text-slate-900">Monthly Consistency Calendar</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Rekam jejak harian konsistensi penyelesaian habit secara menyeluruh.</p>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-200 px-3 py-1.5 rounded-xl flex items-center gap-1.5 self-start sm:self-auto">
+                        📅 July 2026 Overview
+                    </span>
+                </div>
+
+                <div class="space-y-2 pt-1">
+                    <div class="grid grid-cols-7 gap-1.5 text-center text-xs font-bold text-slate-400 pb-1">
+                        <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1.5">
+                        @foreach ($calendarData as $day => $data)
+                            @php
+                                $bgClass = match($data['status']) {
+                                    'green' => 'bg-emeraldAction text-white font-bold shadow-xs',
+                                    'yellow' => 'bg-amber-300 text-slate-900 font-bold shadow-xs',
+                                    'red' => 'bg-rose-500 text-white font-bold shadow-xs',
+                                    default => 'bg-white text-slate-400 border border-slate-200/80 hover:bg-slate-50'
+                                };
+                                $isToday = ($day == now()->day);
+                                $todayRing = $isToday ? 'ring-2 ring-emerald-600 ring-offset-1 font-extrabold shadow-sm' : '';
+                            @endphp
+                            <div class="h-8 rounded-lg flex items-center justify-center text-xs transition-all duration-200 {{ $bgClass }} {{ $todayRing }}" title="Day {{ $day }}: {{ $data['label'] }}">
+                                {{ $day }}
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-6 text-xs text-slate-600 pt-3 border-t border-slate-100">
+                    <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-lg bg-emeraldAction"></span> Completed</span>
+                    <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-lg bg-amber-300"></span> Partial</span>
+                    <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-lg bg-slate-200"></span> Missed</span>
+                </div>
+            </div>
+        </x-card>
 
     </x-container>
 
@@ -96,17 +144,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const ctx = document.getElementById('weeklyConsistencyChart').getContext('2d');
-            
-            // Ambil data real dari Laravel
             const rawData = @json($weeklyData ?? []);
             
             if (rawData.length > 0) {
                 const labels = rawData.map(item => item.day);
                 const dataPercentages = rawData.map(item => item.percentage);
-                
-                // Hari ini warnanya beda
-                const bgColors = rawData.map(item => item.is_today ? '#10b981' : '#6366f1');
-                const hoverBgColors = rawData.map(item => item.is_today ? '#059669' : '#4f46e5');
+                const bgColors = rawData.map(item => item.is_today ? '#157F5C' : '#6366f1');
+                const hoverBgColors = rawData.map(item => item.is_today ? '#0F6E52' : '#4f46e5');
 
                 new Chart(ctx, {
                     type: 'bar',
@@ -117,9 +161,9 @@
                             data: dataPercentages,
                             backgroundColor: bgColors,
                             hoverBackgroundColor: hoverBgColors,
-                            borderRadius: 6,
+                            borderRadius: 8,
                             borderSkipped: false,
-                            barPercentage: 0.6,
+                            barPercentage: 0.55,
                             categoryPercentage: 0.8
                         }]
                     },
@@ -162,10 +206,7 @@
                                     color: '#64748b',
                                     font: { size: 12, weight: '500', family: "'Inter', sans-serif" }
                                 },
-                                grid: {
-                                    display: false,
-                                    drawBorder: false
-                                }
+                                grid: { display: false, drawBorder: false }
                             }
                         },
                         animation: {
