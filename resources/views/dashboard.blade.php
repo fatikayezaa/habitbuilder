@@ -40,7 +40,7 @@
 
             <!-- KOLOM KIRI (Today's Habits, Recent Activity, & Achievements) -> Span 2 -->
             <div class="lg:col-span-2 space-y-8">
-                
+
                 <!-- Today's Habits Card -->
                 <x-card class="transition-all duration-300 hover:shadow-md">
                     <div class="p-6">
@@ -59,11 +59,11 @@
                             $categoryColor = $habit->category ? $habit->category->color : '#157F5C';
 
                             $freqLabels = [
-                                'daily' => ['label' => 'Harian', 'icon' => '🔁', 'bg' => 'bg-sage-100 text-emeraldAction border-sage-200'],
-                                'weekly' => ['label' => 'Mingguan', 'icon' => '📅', 'bg' => 'bg-purple-50 text-purple-600 border-purple-200'],
-                                'weekdays' => ['label' => 'Hari Kerja', 'icon' => '💼', 'bg' => 'bg-emerald-50 text-emerald-600 border-emerald-200'],
-                                'weekend' => ['label' => 'Akhir Pekan', 'icon' => '☕', 'bg' => 'bg-teal-50 text-teal-600 border-teal-200'],
-                                'one_time' => ['label' => 'Sekali Selesai', 'icon' => '🎯', 'bg' => 'bg-amber-50 text-amber-600 border-amber-200'],
+                            'daily' => ['label' => 'Harian', 'icon' => '🔁', 'bg' => 'bg-sage-100 text-emeraldAction border-sage-200'],
+                            'weekly' => ['label' => 'Mingguan', 'icon' => '📅', 'bg' => 'bg-purple-50 text-purple-600 border-purple-200'],
+                            'weekdays' => ['label' => 'Hari Kerja', 'icon' => '💼', 'bg' => 'bg-emerald-50 text-emerald-600 border-emerald-200'],
+                            'weekend' => ['label' => 'Akhir Pekan', 'icon' => '☕', 'bg' => 'bg-teal-50 text-teal-600 border-teal-200'],
+                            'one_time' => ['label' => 'Sekali Selesai', 'icon' => '🎯', 'bg' => 'bg-amber-50 text-amber-600 border-amber-200'],
                             ];
                             $currentFreq = $freqLabels[$habit->frequency] ?? ['label' => ucfirst($habit->frequency), 'icon' => '📌', 'bg' => 'bg-slate-50 text-slate-600 border-slate-200'];
                             @endphp
@@ -115,11 +115,11 @@
                             @php
                             $habitFreq = $log->habit->frequency ?? 'daily';
                             $freqLabels = [
-                                'daily' => ['label' => 'Harian', 'bg' => 'bg-sage-100 text-emeraldAction'],
-                                'weekly' => ['label' => 'Mingguan', 'bg' => 'bg-purple-50 text-purple-600'],
-                                'weekdays' => ['label' => 'Hari Kerja', 'bg' => 'bg-emerald-50 text-emerald-600'],
-                                'weekend' => ['label' => 'Akhir Pekan', 'bg' => 'bg-teal-50 text-teal-600'],
-                                'one_time' => ['label' => 'Sekali Selesai', 'bg' => 'bg-amber-50 text-amber-600']
+                            'daily' => ['label' => 'Harian', 'bg' => 'bg-sage-100 text-emeraldAction'],
+                            'weekly' => ['label' => 'Mingguan', 'bg' => 'bg-purple-50 text-purple-600'],
+                            'weekdays' => ['label' => 'Hari Kerja', 'bg' => 'bg-emerald-50 text-emerald-600'],
+                            'weekend' => ['label' => 'Akhir Pekan', 'bg' => 'bg-teal-50 text-teal-600'],
+                            'one_time' => ['label' => 'Sekali Selesai', 'bg' => 'bg-amber-50 text-amber-600']
                             ];
                             $currentFreq = $freqLabels[$habitFreq] ?? ['label' => ucfirst($habitFreq), 'bg' => 'bg-slate-50 text-slate-600'];
                             @endphp
@@ -208,7 +208,7 @@
 
             <!-- KOLOM KANAN (Weekly Progress & Expanded Monthly Consistency Calendar) -> Span 1 -->
             <div class="space-y-8">
-                
+
                 <!-- Weekly Progress Ring Card -->
                 <x-card class="transition-all duration-300 hover:shadow-md">
                     <div class="p-6">
@@ -246,30 +246,30 @@
                             <span class="text-xs font-bold text-emerald-800 bg-emerald-200/50 px-2 py-1 rounded-lg">🔥 Active</span>
                         </div>
 
-                        <!-- Grid Kalender Bulanan Penuh (Meniru heatmap / grid tanggal) -->
+                        <!-- Grid Kalender Bulanan Penuh (Dinamis dari Controller) -->
                         <div class="space-y-1.5">
                             <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 pb-1">
                                 <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
                             </div>
                             <div class="grid grid-cols-7 gap-1.5">
-                                @for ($i = 1; $i <= 31; $i++)
-                                    @php
-                                        // Simulasi status konsistensi tanggal
-                                        $isDone = ($i <= 25 && $i != 5 && $i != 12 && $i != 19);
-                                        $isPartial = ($i == 5 || $i == 12);
-                                        
-                                        if ($isDone) {
-                                            $boxClass = 'bg-emeraldAction text-white font-bold';
-                                        } elseif ($isPartial) {
-                                            $boxClass = 'bg-amber-300 text-slate-900 font-bold';
-                                        } else {
-                                            $boxClass = 'bg-white text-slate-400 border border-slate-200';
-                                        }
-                                    @endphp
-                                    <div class="h-7 rounded-md flex items-center justify-center text-[11px] {{ $boxClass }}">
-                                        {{ $i }}
-                                    </div>
-                                @endfor
+                                @foreach ($calendarData as $day => $data)
+                                @php
+                                $bgClass = match($data['status']) {
+                                'green' => 'bg-emeraldAction text-white font-bold',
+                                'yellow' => 'bg-amber-300 text-slate-900 font-bold',
+                                'red' => 'bg-rose-500 text-white font-bold',
+                                default => 'bg-white text-slate-400 border border-slate-200'
+                                };
+
+                                // Tandai hari ini (25 Juli 2026) dengan ring khusus
+                                $isToday = ($day == now()->day);
+                                $todayRing = $isToday ? 'ring-2 ring-emerald-700 ring-offset-1' : '';
+                                @endphp
+
+                                <div class="h-7 rounded-md flex items-center justify-center text-[11px] {{ $bgClass }} {{ $todayRing }}" title="Day {{ $day }}: {{ $data['label'] }}">
+                                    {{ $day }}
+                                </div>
+                                @endforeach
                             </div>
                         </div>
 

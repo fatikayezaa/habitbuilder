@@ -5,14 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Habit;
 use App\Models\HabitLog;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $userId = Auth::id();
         $today = Carbon::now()->timezone('Asia/Jakarta')->toDateString();
+        
+        // Ambil tahun dan bulan untuk preview kalender di dashboard (default bulan berjalan)
+        $year = $request->input('year', Carbon::now()->year);
+        $month = $request->input('month', Carbon::now()->month);
 
         $allUserHabits = Habit::where('user_id', $userId)->get();
 
@@ -34,6 +39,7 @@ class DashboardController extends Controller
                 ->exists();
         });
 
+        // Hitung Current Streak (berdasarkan hari log aktif)
         $currentStreak = 0;
         $checkDate = $today;
         while (true) {
@@ -79,6 +85,9 @@ class DashboardController extends Controller
 
         $totalHabits = $allUserHabits->count();
 
+        // Ambil data kalender konsistensi bulanan untuk widget dashboard
+        $calendarData = $this->getMonthlyConsistencyData($userId, $year, $month);
+
         return view('dashboard', compact(
             'todayHabits',
             'currentStreak',
@@ -88,14 +97,18 @@ class DashboardController extends Controller
             'totalHabits',
             'todayHabitsCompleted',
             'todayHabitsTarget',
-            'totalCompletionsAllTime'
+            'totalCompletionsAllTime',
+            'calendarData'
         ));
     }
 
-    public function analytics()
+    public function analytics(Request $request)
     {
         $userId = Auth::id();
         $today = Carbon::now()->timezone('Asia/Jakarta');
+
+        $year = $request->input('year', $today->year);
+        $month = $request->input('month', $today->month);
 
         $totalHabits = Habit::where('user_id', $userId)->count();
 
@@ -167,6 +180,9 @@ class DashboardController extends Controller
             }
         }
 
+        // Ambil data kalender bulanan untuk halaman analytics
+        $calendarData = $this->getMonthlyConsistencyData($userId, $year, $month);
+
         return view('analytics.index', compact(
             'totalHabits', 
             'totalCompletedLogs', 
@@ -174,7 +190,74 @@ class DashboardController extends Controller
             'weeklyData',
             'currentStreak',
             'mostActiveCategory',
-            'smartInsight'
+            'smartInsight',
+            'calendarData',
+            'year',
+            'month'
         ));
+    }
+
+    /**
+     * Helper untuk menghitung status konsistensi kalender bulanan (Green, Yellow, Red, White)
+     */
+    private function getMonthlyConsistencyData($userId, $year, $month)
+    {
+        $daysInMonth = Carbon::create($year, $month, 1)->daysInMonth;
+        $calendarData = [];
+        $habits = Habit::where('user_id', $userId)->get();
+        $todayStr = Carbon::now()->timezone('Asia/Jakarta')->toDateString();
+
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $dateString = sprintf('%04d-%02d-%02d', $year, $month, $day);
+            
+            // Jangan evaluasi hari di masa depan (biarkan putih/default)
+            if ($dateString > $todayStr) {
+                $calendarData[$day] = ['status' => 'white', 'label' => 'Future'];
+                continue;
+            }
+
+            $currentDate = Carbon::parse($dateString);
+            $dayOfWeek = strtolower($currentDate->format('l'));
+
+            // Tentukan habit yang seharusnya terjadwal di hari itu
+            $scheduledHabits = $habits->filter(function ($habit) use ($currentDate, $dayOfWeek) {
+                if ($habit->frequency === 'daily') return true;
+                if ($habit->frequency === 'weekdays' && !in_array($dayOfWeek, ['saturday', 'sunday'])) return true;
+                if ($habit->frequency === 'weekend' && in_array($dayOfWeek, ['saturday', 'sunday'])) return true;
+                return false;
+            });
+
+            $totalScheduled = $scheduledHabits->count();
+
+            if ($totalScheduled === 0) {
+                $calendarData[$day] = ['status' => 'white', 'label' => 'No Schedule'];
+                continue;
+            }
+
+            // Ambil log yang benar-benar selesai pada tanggal tersebut
+            $completedHabitIds = HabitLog::where('user_id', $userId)
+                ->whereDate('log_date', $dateString)
+                ->where('status', 'completed')
+                ->pluck('habit_id')
+                ->toArray();
+
+            $completedCount = 0;
+            foreach ($scheduledHabits as $habit) {
+                if (in_array($habit->id, $completedHabitIds)) {
+                    $completedCount++;
+                }
+            }
+
+            // Tentukan Status Berdasarkan Data Nyata
+            if ($completedCount === $totalScheduled) {
+                $calendarData[$day] = ['status' => 'green', 'label' => 'Completed']; // 🟢 Hijau
+            } elseif ($completedCount > 0) {
+                $calendarData[$day] = ['status' => 'yellow', 'label' => 'Partial']; // 🟡 Kuning
+            } else {
+                $calendarData[$day] = ['status' => 'red', 'label' => 'Missed'];    // 🔴 Merah (atau putih jika ingin bersih)
+            }
+        }
+
+        return $calendarData;
     }
 }
