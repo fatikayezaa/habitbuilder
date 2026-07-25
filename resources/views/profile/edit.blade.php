@@ -4,8 +4,8 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Profile & Settings</h1>
-                <p class="text-slate-500 text-sm mt-0.5">Kelola informasi akun, keamanan, dan preferensi kata sandi kamu.</p>
+                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Profil Pengguna</h1>
+                <p class="text-slate-500 text-sm mt-0.5">Kelola informasi pribadi dan keamanan kata sandi akunmu.</p>
             </div>
         </div>
 
@@ -24,19 +24,19 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
             <!-- CARD 1: UPDATE PROFILE INFO & STATS -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between">
                 
-                <!-- Bagian Atas: Avatar & Info Singkat -->
+                <!-- Bagian Atas: Avatar, Info & Form -->
                 <div class="space-y-6">
                     <div class="flex items-center gap-4 pb-6 border-b border-slate-100">
-                        <div class="w-16 h-16 rounded-2xl bg-indigo-600 text-white font-bold text-2xl flex items-center justify-center shadow-md">
+                        <div class="w-16 h-16 rounded-2xl bg-emerald-600 text-white font-bold text-2xl flex items-center justify-center shadow-md">
                             {{ strtoupper(substr($user->name, 0, 1)) }}
                         </div>
                         <div>
                             <h3 class="font-bold text-lg text-slate-900">{{ $user->name }}</h3>
                             <p class="text-xs text-slate-500">{{ $user->email }}</p>
                             <div class="flex items-center gap-2 mt-2">
-                                <span class="text-[10px] font-semibold px-2.5 py-0.5 bg-indigo-50 text-indigo-600 rounded-full">
+                                <span class="text-[10px] font-semibold px-2.5 py-0.5 bg-emerald-50 text-emerald-600 rounded-full">
                                     Member
                                 </span>
                                 <span class="text-[10px] font-semibold px-2.5 py-0.5 bg-emerald-50 text-emerald-600 rounded-full flex items-center gap-1">
@@ -47,8 +47,8 @@
                     </div>
 
                     <div>
-                        <h4 class="font-bold text-sm text-slate-900 mb-1">Informasi Profil</h4>
-                        <p class="text-xs text-slate-500">Perbarui nama lengkap dan alamat email akunmu.</p>
+                        <h4 class="font-bold text-sm text-slate-900 mb-1">Informasi Akun</h4>
+                        <p class="text-xs text-slate-500">Perbarui nama lengkap dan alamat email profilmu.</p>
                     </div>
 
                     <form method="post" action="{{ route('profile.update') }}" class="space-y-4">
@@ -57,24 +57,26 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Lengkap</label>
-                            <input type="text" name="name" value="{{ old('name', $user->name) }}" required class="w-full px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 transition-all">
+                            <input type="text" name="name" value="{{ old('name', $user->name) }}" required class="w-full px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 transition-all">
                             @error('name') <span class="text-xs text-red-500 mt-1">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Email</label>
-                            <input type="email" name="email" value="{{ old('email', $user->email) }}" required class="w-full px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 transition-all">
+                            <input type="email" name="email" value="{{ old('email', $user->email) }}" required class="w-full px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 transition-all">
                             @error('email') <span class="text-xs text-red-500 mt-1">{{ $message }}</span> @enderror
                         </div>
 
-                        <button type="submit" class="w-full py-2.5 bg-indigo-600 text-white font-semibold text-xs rounded-xl hover:bg-indigo-700 transition-all shadow-sm">
-                            Simpan Perubahan
-                        </button>
+                        <div class="pt-2">
+                            <button type="submit" class="w-full py-2.5 bg-emerald-600 text-white font-semibold text-xs rounded-xl hover:bg-emerald-700 transition-all shadow-sm">
+                                Simpan Perubahan
+                            </button>
+                        </div>
                     </form>
                 </div>
 
                 <!-- Bagian Bawah: Meta Info -->
-                <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                <div class="pt-6 mt-6 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
                     <span>Bergabung sejak: <strong class="text-slate-600">{{ $user->created_at ? $user->created_at->format('d M Y') : 'Juli 2026' }}</strong></span>
                     <span>Status: <strong class="text-emerald-600">Active</strong></span>
                 </div>
@@ -84,7 +86,7 @@
             <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-6">
                 <div>
                     <h3 class="font-bold text-lg text-slate-900">Ubah Kata Sandi</h3>
-                    <p class="text-xs text-slate-500">Pastikan akunmu menggunakan kata sandi yang aman dan kuat.</p>
+                    <p class="text-xs text-slate-500">Perbarui kata sandi secara berkala untuk menjaga keamanan akun.</p>
                 </div>
 
                 <form method="post" action="{{ route('password.update') }}" class="space-y-4">
@@ -94,7 +96,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Kata Sandi Saat Ini</label>
                         <div class="relative">
-                            <input type="password" name="current_password" id="current_password" required class="w-full px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 pr-10">
+                            <input type="password" name="current_password" id="current_password" required class="w-full px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 pr-10">
                             <button type="button" onclick="togglePassword('current_password', this)" class="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-slate-600">👁</button>
                         </div>
                         @error('current_password', 'updatePassword') <span class="text-xs text-red-500 mt-1">{{ $message }}</span> @enderror
@@ -103,7 +105,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Kata Sandi Baru</label>
                         <div class="relative">
-                            <input type="password" name="password" id="new_password" required oninput="checkPasswordStrength(this.value)" class="w-full px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 pr-10">
+                            <input type="password" name="password" id="new_password" required oninput="checkPasswordStrength(this.value)" class="w-full px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 pr-10">
                             <button type="button" onclick="togglePassword('new_password', this)" class="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-slate-600">👁</button>
                         </div>
                         
@@ -123,13 +125,13 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Konfirmasi Kata Sandi Baru</label>
                         <div class="relative">
-                            <input type="password" name="password_confirmation" id="confirm_password" required class="w-full px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 pr-10">
+                            <input type="password" name="password_confirmation" id="confirm_password" required class="w-full px-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-500 pr-10">
                             <button type="button" onclick="togglePassword('confirm_password', this)" class="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-slate-600">👁</button>
                         </div>
                         @error('password_confirmation', 'updatePassword') <span class="text-xs text-red-500 mt-1">{{ $message }}</span> @enderror
                     </div>
 
-                    <button type="submit" class="w-full py-2.5 bg-indigo-600 text-white font-semibold text-xs rounded-xl hover:bg-indigo-700 transition-all shadow-sm mt-4">
+                    <button type="submit" class="w-full py-2.5 bg-emerald-600 text-white font-semibold text-xs rounded-xl hover:bg-emerald-700 transition-all shadow-sm mt-4">
                         Perbarui Sandi
                     </button>
                 </form>
