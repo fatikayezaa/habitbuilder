@@ -51,13 +51,39 @@ class DashboardController extends Controller
             ->toArray();
 
         $currentStreak = 0;
-        $checkDate = $today;
+        $todayCompleted = HabitLog::where('log_date', $today)
+            ->whereHas('habit', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->where('status', 'completed')
+            ->exists();
+
+        $checkDate = $todayCompleted 
+            ? $today 
+            : Carbon::parse($today)->subDay()->toDateString();
+
+        if (!$todayCompleted) {
+            $yesterday = Carbon::parse($today)->subDay()->toDateString();
+            $yesterdayCompleted = HabitLog::where('log_date', $yesterday)
+                ->whereHas('habit', function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })
+                ->where('status', 'completed')
+                ->exists();
+
+            if ($yesterdayCompleted) {
+                $checkDate = $yesterday;
+            }
+        }
+
         while (true) {
             $hasCompleted = HabitLog::where('log_date', $checkDate)
                 ->whereHas('habit', function ($query) use ($userId) {
                     $query->where('user_id', $userId);
                 })
+                ->where('status', 'completed')
                 ->exists();
+
             if ($hasCompleted) {
                 $currentStreak++;
                 $checkDate = Carbon::parse($checkDate)->subDay()->toDateString();
