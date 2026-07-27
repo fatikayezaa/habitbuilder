@@ -21,9 +21,27 @@
 
         <!-- Stat Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-                <x-stat-card title="Current Streak" value="{{ $currentStreak }} Days" icon="🔥" color="amber" />
+            @php
+            $isTodayChecked = \App\Models\HabitLog::where('log_date', now()->timezone('Asia/Jakarta')->toDateString())
+                ->whereHas('habit', function ($query) {
+                    $query->where('user_id', auth()->id());
+                })
+                ->where('status', 'completed')
+                ->exists();
+            @endphp
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Current Streak</p>
+                    <h3 class="text-2xl font-extrabold mt-1 {{ $isTodayChecked ? 'text-slate-900' : 'text-slate-400' }}">
+                        {{ $currentStreak }} <span class="text-sm font-medium {{ $isTodayChecked ? 'text-slate-600' : 'text-slate-400' }}">Days</span>
+                    </h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl {{ $isTodayChecked ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-400 grayscale' }} flex items-center justify-center text-xl shadow-xs">
+                    🔥
+                </div>
             </div>
+
             <div class="transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
                 <x-stat-card title="Today's Habits" value="{{ $todayHabitsCompleted }}/{{ $todayHabitsTarget }}" icon="✅" color="emerald" />
             </div>
