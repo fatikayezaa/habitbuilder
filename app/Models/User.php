@@ -3,17 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
-
     protected $fillable = [
         'name',
         'email',
         'password',
     ];
+
     // Relasi ke Category
     public function categories(): HasMany
     {
@@ -26,8 +27,8 @@ class User extends Authenticatable
         return $this->hasMany(Habit::class);
     }
 
-    // Relasi ke Setting
-    public function setting()
+    // Relasi ke Setting (One-to-One)
+    public function setting(): HasOne
     {
         return $this->hasOne(Setting::class);
     }

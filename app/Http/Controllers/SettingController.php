@@ -12,7 +12,6 @@ class SettingController extends Controller
     {
         $user = Auth::user();
 
-        // Ambil settings user, atau buat default jika belum ada
         $setting = Setting::firstOrCreate(
             ['user_id' => $user->id],
             [
@@ -35,15 +34,16 @@ class SettingController extends Controller
             'language' => ['required', 'string', 'in:id,en'],
         ]);
 
-        $setting = Setting::where('user_id', Auth::id())->firstOrFail();
-
-        $setting->update([
-            'theme' => $request->theme,
-            'timezone' => $request->timezone,
-            'language' => $request->language,
-            'reminder_notification' => $request->has('reminder_notification'),
-            'email_notification' => $request->has('email_notification'),
-        ]);
+        Setting::updateOrCreate(
+            ['user_id' => Auth::id()],
+            [
+                'theme' => $request->theme,
+                'timezone' => $request->timezone,
+                'language' => $request->language,
+                'reminder_notification' => $request->has('reminder_notification'),
+                'email_notification' => $request->has('email_notification'),
+            ]
+        );
 
         return back()->with('status', 'settings-updated');
     }
