@@ -37,7 +37,7 @@ class CategoryController extends Controller
     // 3. Tampilkan Form Edit
     public function edit(Category $category)
     {
-        // Pastikan hanya pemilik yang bisa mengedit
+
         if ($category->user_id !== Auth::id()) {
             abort(403);
         }
@@ -47,7 +47,7 @@ class CategoryController extends Controller
     // 4. Proses Update Data Kategori
     public function update(Request $request, Category $category)
     {
-        // Pastikan hanya pemilik yang bisa mengedit
+
         if ($category->user_id !== Auth::id()) {
             abort(403);
         }
@@ -70,7 +70,7 @@ class CategoryController extends Controller
     // 5. Proses Hapus Kategori
     public function destroy(Category $category)
     {
-        // Pastikan hanya pemilik yang bisa menghapus
+        
         if ($category->user_id === Auth::id()) {
             $category->delete();
         }
