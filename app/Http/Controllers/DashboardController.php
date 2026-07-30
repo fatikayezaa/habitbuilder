@@ -176,36 +176,35 @@ class DashboardController extends Controller
 
         $weeklyData = [];
         $completedThisWeek = 0;
+        
+        $calendarData = $this->getMonthlyConsistencyData($userId, $year, $month);
+
         for ($i = 6; $i >= 0; $i--) {
             $date = $today->copy()->subDays($i);
-            $dayIndoNameForLoop = $daysMap[$date->format('l')];
+            $dayNum = (int)$date->format('j'); // Tanggal hari ini dalam angka (1-31)
+            $dateStr = $date->toDateString();
 
-            $dayScheduledHabits = Habit::with('schedules')->where('user_id', $userId)->get()->filter(function ($habit) use ($dayIndoNameForLoop, $date) {
-                if (!$habit->schedules->contains('day_of_week', $dayIndoNameForLoop)) {
-                    return false;
-                }
-                if ($habit->frequency === 'one_time') {
-                    $alreadyCompleted = HabitLog::where('habit_id', $habit->id)
-                        ->where('status', 'completed')
-                        ->whereDate('log_date', '<', $date->toDateString())
-                        ->exists();
-                    return !$alreadyCompleted;
-                }
-                return true;
-            });
+           
+            if ($date->year == $year && $date->month == $month) {
+                $dayData = $calendarData[$dayNum] ?? ['status' => 'white', 'label' => 'No Schedule'];
+            } else {
+                ResourceType: $crossCalendar = $this->getMonthlyConsistencyData($userId, $date->year, $date->month);
+                $dayData = $crossCalendar[$dayNum] ?? ['status' => 'white', 'label' => 'No Schedule'];
+            }
 
-            $dayTargetCount = $dayScheduledHabits->count();
-
-            $completedCount = HabitLog::whereDate('log_date', $date->toDateString())
-                ->whereIn('habit_id', $dayScheduledHabits->pluck('id'))
-                ->where('status', 'completed')
-                ->count();
-
-            $completedThisWeek += $completedCount;
-            $percentage = $dayTargetCount > 0 ? round(($completedCount / $dayTargetCount) * 100) : 0;
+            $percentage = 0;
+            if ($dayData['status'] === 'green') {
+                $percentage = 100;
+                $completedThisWeek++;
+            } elseif ($dayData['status'] === 'yellow') {
+                $percentage = 50; 
+                $completedThisWeek++;
+            } else {
+                $percentage = 0; 
+            }
 
             $weeklyData[] = [
-                'day' => $date->translatedFormat('D'),
+                'day' => $date->translatedFormat('D'), 
                 'percentage' => $percentage,
                 'is_today' => $i === 0
             ];
