@@ -1,7 +1,7 @@
 # HabitBuilder
 
 <p align="center">
-  <img src="screenshots/dashboard-home.png" alt="HabitBuilder Dashboard" width="95%">
+A modern <strong>Habit Tracking Web Application</strong> built with <strong>Laravel</strong>, <strong>Docker</strong>, and <strong>MySQL</strong>.
 </p>
 
 <p align="center">
@@ -13,16 +13,16 @@
 </p>
 
 <p align="center">
-A modern Habit Tracking Web Application built with Laravel and Docker.
+  <img src="screenshots/dashboard-home.png" alt="HabitBuilder Dashboard" width="85%">
 </p>
 
 ---
 
 ## 📖 About
 
-HabitBuilder is a web-based habit tracking application that helps users build positive habits through daily activity tracking, progress monitoring, analytics, and achievements.
+HabitBuilder is a web-based habit tracking application designed to help users build and maintain positive habits through daily tracking, scheduling, analytics, and achievement milestones.
 
-Developed with **Laravel**, **Docker**, and **MySQL**, the application provides a consistent development environment while implementing CRUD operations, authentication, scheduling, and analytical dashboards.
+Built with **Laravel**, **Docker**, and **MySQL**, the application provides a consistent development environment while implementing authentication, CRUD operations, habit scheduling, progress tracking, and interactive dashboards.
 
 This project was developed as part of the **DevOps and Agile Development** course at **Universitas Nasional**.
 
@@ -43,7 +43,7 @@ This project was developed as part of the **DevOps and Agile Development** cours
 
 ---
 
-## 🛠 Tech Stack
+## 🛠️ Tech Stack
 
 | Category | Technology |
 |-----------|------------|
@@ -58,9 +58,9 @@ This project was developed as part of the **DevOps and Agile Development** cours
 
 ---
 
-# 📸 Application Preview
+## 📸 Application Preview
 
-## Authentication
+### 🔐 Authentication
 
 | Login | Register |
 |-------|----------|
@@ -68,31 +68,31 @@ This project was developed as part of the **DevOps and Agile Development** cours
 
 ---
 
-## Dashboard
+### 📁 Categories
 
-| Dashboard | Statistics & Achievements |
+| Create Category | Category List |
+|-----------------|---------------|
+| ![](screenshots/categories-create.png) | ![](screenshots/categories-list.png) |
+
+---
+
+### ✅ Habits
+
+| Create Habit | Habit List |
+|--------------|------------|
+| ![](screenshots/habits-create.png) | ![](screenshots/habits-list.png) |
+
+---
+
+### 🏠 Dashboard
+
+| Overview | Statistics & Achievements |
 |-----------|---------------------------|
 | ![](screenshots/dashboard-home.png) | ![](screenshots/dashboard-statistics.png) |
 
 ---
 
-## Categories
-
-| Category List | Create Category |
-|--------------|-----------------|
-| ![](screenshots/categories-list.png) | ![](screenshots/categories-create.png) |
-
----
-
-## Habits
-
-| Habit List | Create Habit |
-|-----------|--------------|
-| ![](screenshots/habits-list.png) | ![](screenshots/habits-create.png) |
-
----
-
-## Analytics
+### 📊 Analytics
 
 | Weekly Analytics | Monthly Analytics |
 |-----------------|-------------------|
@@ -100,7 +100,7 @@ This project was developed as part of the **DevOps and Agile Development** cours
 
 ---
 
-## Profile & Settings
+### 👤 Profile & ⚙️ Settings
 
 | Profile | Settings |
 |---------|----------|
@@ -119,8 +119,8 @@ src/
 ├── public/
 ├── resources/
 ├── routes/
-├── storage/
 ├── screenshots/
+├── storage/
 ├── .env.example
 ├── artisan
 ├── composer.json
@@ -129,7 +129,7 @@ src/
 
 ---
 
-# 🚀 Installation
+## 🚀 Installation
 
 Clone the repository
 
@@ -143,40 +143,40 @@ Move into the project directory
 cd habitbuilder
 ```
 
-Install dependencies
-
-```bash
-composer install
-```
-
 Copy the environment file
 
 ```bash
 cp .env.example .env
 ```
 
-Generate the application key
-
-```bash
-php artisan key:generate
-```
-
-Run Docker
+Start Docker containers
 
 ```bash
 docker compose up -d
 ```
 
+Install dependencies
+
+```bash
+docker compose exec app composer install
+```
+
+Generate the application key
+
+```bash
+docker compose exec app php artisan key:generate
+```
+
 Run database migrations
 
 ```bash
-php artisan migrate
+docker compose exec app php artisan migrate
 ```
 
-(Optional) Seed the database
+(Optional) Run database seeder
 
 ```bash
-php artisan db:seed
+docker compose exec app php artisan db:seed
 ```
 
 ---
@@ -203,7 +203,7 @@ php artisan db:seed
 Information Systems Student  
 Universitas Nasional
 
-GitHub: **https://github.com/fatikayezaa**
+GitHub: https://github.com/fatikayezaa
 
 ---
 
