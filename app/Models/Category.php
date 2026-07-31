@@ -10,13 +10,11 @@ class Category extends Model
 {
     protected $fillable = ['user_id', 'name', 'color', 'icon'];
 
-    // Category dimiliki oleh satu User
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // Satu Category memiliki banyak Habit
     public function habits(): HasMany
     {
         return $this->hasMany(Habit::class);
