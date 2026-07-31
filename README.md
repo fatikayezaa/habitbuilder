@@ -1,58 +1,212 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# HabitBuilder
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="screenshots/dashboard-home.png" alt="HabitBuilder Dashboard" width="95%">
 </p>
 
-## About Laravel
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white" alt="Laravel">
+  <img src="https://img.shields.io/badge/PHP-8.4-777BB4?logo=php&logoColor=white" alt="PHP">
+  <img src="https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white" alt="MySQL">
+  <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white" alt="Docker">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-v3-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
+</p>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+A modern Habit Tracking Web Application built with Laravel and Docker.
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 📖 About
 
-## Learning Laravel
+HabitBuilder is a web-based habit tracking application that helps users build positive habits through daily activity tracking, progress monitoring, analytics, and achievements.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Developed with **Laravel**, **Docker**, and **MySQL**, the application provides a consistent development environment while implementing CRUD operations, authentication, scheduling, and analytical dashboards.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+This project was developed as part of the **DevOps and Agile Development** course at **Universitas Nasional**.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## ✨ Features
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+- 🔐 User Authentication
+- 🏠 Dashboard Overview
+- 📁 Category Management
+- ✅ Habit Management
+- 📅 Habit Scheduling
+- ✔️ Daily Habit Check-in
+- 📊 Analytics Dashboard
+- 🏆 Achievement System
+- 👤 User Profile
+- ⚙️ Settings
 
-```bash
-composer require laravel/boost --dev
+---
 
-php artisan boost:install
+## 🛠 Tech Stack
+
+| Category | Technology |
+|-----------|------------|
+| Backend | Laravel 13 |
+| Language | PHP 8.4 |
+| Frontend | Blade & Tailwind CSS |
+| Database | MySQL 8 |
+| Containerization | Docker & Docker Compose |
+| Web Server | Nginx |
+| Icons | Bootstrap Icons |
+| Version Control | Git & GitHub |
+
+---
+
+# 📸 Application Preview
+
+## Authentication
+
+| Login | Register |
+|-------|----------|
+| ![](screenshots/login.png) | ![](screenshots/register.png) |
+
+---
+
+## Dashboard
+
+| Dashboard | Statistics & Achievements |
+|-----------|---------------------------|
+| ![](screenshots/dashboard-home.png) | ![](screenshots/dashboard-statistics.png) |
+
+---
+
+## Categories
+
+| Category List | Create Category |
+|--------------|-----------------|
+| ![](screenshots/categories-list.png) | ![](screenshots/categories-create.png) |
+
+---
+
+## Habits
+
+| Habit List | Create Habit |
+|-----------|--------------|
+| ![](screenshots/habits-list.png) | ![](screenshots/habits-create.png) |
+
+---
+
+## Analytics
+
+| Weekly Analytics | Monthly Analytics |
+|-----------------|-------------------|
+| ![](screenshots/analytics-weekly.png) | ![](screenshots/analytics-monthly.png) |
+
+---
+
+## Profile & Settings
+
+| Profile | Settings |
+|---------|----------|
+| ![](screenshots/profile.png) | ![](screenshots/settings.png) |
+
+---
+
+## 📂 Project Structure
+
+```text
+src/
+├── app/
+├── bootstrap/
+├── config/
+├── database/
+├── public/
+├── resources/
+├── routes/
+├── storage/
+├── screenshots/
+├── .env.example
+├── artisan
+├── composer.json
+└── README.md
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
+# 🚀 Installation
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Clone the repository
 
-## Code of Conduct
+```bash
+git clone https://github.com/fatikayezaa/habitbuilder.git
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Move into the project directory
 
-## Security Vulnerabilities
+```bash
+cd habitbuilder
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Install dependencies
 
-## License
+```bash
+composer install
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Copy the environment file
+
+```bash
+cp .env.example .env
+```
+
+Generate the application key
+
+```bash
+php artisan key:generate
+```
+
+Run Docker
+
+```bash
+docker compose up -d
+```
+
+Run database migrations
+
+```bash
+php artisan migrate
+```
+
+(Optional) Seed the database
+
+```bash
+php artisan db:seed
+```
+
+---
+
+## 📌 Main Modules
+
+- Authentication
+- Dashboard
+- Categories
+- Habits
+- Habit Logs
+- Habit Schedules
+- Analytics
+- Achievements
+- Profile
+- Settings
+
+---
+
+## 👩‍💻 Author
+
+**Fatika Dwi Maiyeza**
+
+Information Systems Student  
+Universitas Nasional
+
+GitHub: **https://github.com/fatikayezaa**
+
+---
+
+## 📄 License
+
+This project was developed for educational and academic purposes.
