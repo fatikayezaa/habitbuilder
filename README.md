@@ -30,16 +30,16 @@ This project was developed as part of the **DevOps and Agile Development** cours
 
 ## ✨ Features
 
-- 🔐 User Authentication
-- 🏠 Dashboard Overview
-- 📁 Category Management
+- ✅ User Authentication
+- ✅ Dashboard Overview
+- ✅ Category Management
 - ✅ Habit Management
-- 📅 Habit Scheduling
-- ✔️ Daily Habit Check-in
-- 📊 Analytics Dashboard
-- 🏆 Achievement System
-- 👤 User Profile
-- ⚙️ Settings
+- ✅ Habit Scheduling
+- ✅ Daily Habit Check-in
+- ✅ Analytics Dashboard
+- ✅ Achievement System
+- ✅ User Profile
+- ✅ Application Settings
 
 ---
 
@@ -62,9 +62,17 @@ This project was developed as part of the **DevOps and Agile Development** cours
 
 ### 🔐 Authentication
 
-| Login | Register |
-|-------|----------|
-| ![](screenshots/login.png) | ![](screenshots/register.png) |
+| Register | Login |
+|----------|-------|
+| ![](screenshots/register.png) | ![](screenshots/login.png) |
+
+---
+
+### 🏠 Dashboard
+
+| Overview | Statistics & Achievements |
+|-----------|---------------------------|
+| ![](screenshots/dashboard-home.png) | ![](screenshots/dashboard-statistics.png) |
 
 ---
 
@@ -81,14 +89,6 @@ This project was developed as part of the **DevOps and Agile Development** cours
 | Create Habit | Habit List |
 |--------------|------------|
 | ![](screenshots/habits-create.png) | ![](screenshots/habits-list.png) |
-
----
-
-### 🏠 Dashboard
-
-| Overview | Statistics & Achievements |
-|-----------|---------------------------|
-| ![](screenshots/dashboard-home.png) | ![](screenshots/dashboard-statistics.png) |
 
 ---
 
@@ -181,21 +181,6 @@ docker compose exec app php artisan db:seed
 
 ---
 
-## 📌 Main Modules
-
-- Authentication
-- Dashboard
-- Categories
-- Habits
-- Habit Logs
-- Habit Schedules
-- Analytics
-- Achievements
-- Profile
-- Settings
-
----
-
 ## 👩‍💻 Author
 
 **Fatika Dwi Maiyeza**
@@ -203,10 +188,10 @@ docker compose exec app php artisan db:seed
 Information Systems Student  
 Universitas Nasional
 
-GitHub: https://github.com/fatikayezaa
+GitHub: **[@fatikayezaa](https://github.com/fatikayezaa)**
 
 ---
 
 ## 📄 License
 
-This project was developed for educational and academic purposes.
+This project was developed for academic and educational purposes as part of the **DevOps and Agile Development** course.
